@@ -1,0 +1,15 @@
+{
+	"name": "pokt-cli",
+	"version": "1.0.0",
+	"main": "index.js",
+	"license": "MIT",
+	"bin": {
+		"pokt-cli": "./bin/index.js"
+	},
+	"dependencies": {
+		"@pokt-network/pocket-js": "^0.7.1-rc",
+		"ethers": "^5.5.4",
+		"password-prompt": "^1.1.2",
+		"yargs": "^17.3.1"
+	}
+}
