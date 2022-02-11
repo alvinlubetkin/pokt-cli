@@ -8,6 +8,10 @@ const options = yargs
   .option("t", { alias: "test", describe: "testing cli", demandOption: false })
   .help(true).argv;
 
+if (yargs.argv._.length == 0) {
+  utils.showHelp();
+}
+
 if (yargs.argv._[0] == "balance") {
   if (!yargs.argv._[1]) {
     utils.showHelp();
@@ -20,11 +24,11 @@ if (yargs.argv._[0] == "balance") {
 }
 
 if (yargs.argv._[0] == "add-account") {
-  if (yargs.argv._.length != 4) {
+  if (!(yargs.argv._.length >= 3 && yargs.argv._.length <= 4)) {
     utils.showHelp();
     return;
   }
-  utils.addAccount(yargs.argv._[1], yargs.argv._[2], yargs.argv._[3]);
+  utils.addAccount(yargs.argv._);
   return;
 }
 
@@ -47,7 +51,7 @@ if (yargs.argv._[0] == "list-accounts") {
 }
 
 if (yargs.argv._[0] == "parse-accounts") {
-  utils.parseAccounts();
+  console.log(utils.parseAccounts());
   if (yargs.argv._.length > 1) {
     utils.showHelp();
     return;

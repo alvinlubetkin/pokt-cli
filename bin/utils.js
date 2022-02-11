@@ -1,7 +1,10 @@
 const fs = require("fs");
 const pocketJS = require("@pokt-network/pocket-js");
 const { getPassword } = require("./pswnode");
+const { CoinDenom } = require("@pokt-network/pocket-js");
 const { Pocket, Configuration, HttpRpcProvider, PocketAAT } = pocketJS;
+
+const ACCOUNTS_PATH = `${__dirname}/keyfiles/accounts.txt`;
 
 const checkBalance = async (addr) => {
   const POCKET_DISPATCHER =
@@ -21,34 +24,40 @@ const checkBalance = async (addr) => {
   }
 };
 
-const addAccount = async (addr, weight, path) => {
+const addAccount = async (args) => {
+  const addr = args[1];
+  const weight = args[2];
   if (!(parseFloat(weight) < 1)) {
     console.log("check weight");
     showHelp();
     return;
   }
   const acct = `${addr.toLowerCase()} ${weight} `;
-  fs.appendFile("./keyfiles/accounts.txt", acct, (err) => {
+  fs.appendFile(ACCOUNTS_PATH, acct, (err) => {
     if (err) {
-      console.error(err);
       return;
     }
   });
-  console.log(path);
-  fs.copyFile(
-    path,
-    `${__dirname}/keyfiles/${addr.toLowerCase()}-keyFile.json`,
-    (err) => {
-      if (err) {
-        console.log("check path");
-        getHelp();
-        return;
+  if (args.length == 4) {
+    fs.copyFile(
+      args[3],
+      `${__dirname}/keyfiles/${addr.toLowerCase()}-keyFile.json`,
+      (err) => {
+        if (err) {
+          console.log("check path");
+          getHelp();
+          return;
+        }
       }
-    }
-  );
+    );
+  }
 };
 
 const showAccounts = () => {
+  if (!fs.existsSync(ACCOUNTS_PATH)) {
+    console.log("No accounts have been addded.");
+    return showHelp();
+  }
   console.log(
     "accounts:",
     fs.readFileSync(`${__dirname}/keyfiles/accounts.txt`, "utf-8")
@@ -79,15 +88,17 @@ const sendTransaction = async (from, to, amount, sweeping = false) => {
     pass
   );
   console.log("sucesfully unlocked account:", account.addressHex);
-  let txSender = await pocket.withImportedAccount(account, pass);
-  // txSender = txSender as TransactionSender;
-  txSender;
-  const chainId = "0001";
+  let txSender = await pocket.withImportedAccount(account.addressHex, pass);
+  const chainId = "1";
   const fee = "10000";
-  const rawTxResponse = await txSender
-    .send(account.addressHex, to, amount)
-    .submit(chainId, fee, "");
-  console.log(rawTxResponse);
+  try {
+    const rawTxResponse = await txSender
+      .send(account.addressHex, to, amount.toString())
+      .submit(chainId, fee, CoinDenom.Upokt, "test memo");
+    console.log(rawTxResponse);
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const setSweeper = (path) => {
@@ -105,7 +116,20 @@ const poktConfig = () => {
     "https://mainnet.gateway.pokt.network/v1/lb/6205e61d7dc878003c59cdf6";
   const dispatchURL = new URL(POCKET_DISPATCHER);
   const rpcProvider = new HttpRpcProvider(dispatchURL);
-  const configuration = new Configuration(5, 1000, 0, 40000);
+  //   const configuration = new Configuration(5, 1000, 0, 40000);
+  const configuration = new Configuration(
+    5,
+    1000,
+    0,
+    50000,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    false,
+    false
+  );
   const pocket = new Pocket([dispatchURL], rpcProvider, configuration);
   return pocket;
 };
