@@ -49,6 +49,7 @@ const parseAccounts = () => {
     return file.split(" ").filter(x => x.length > 0)
 }
 
+//non functioning
 const sendTransaction = async (from, to, amount, sweeping=false) => {
     console.log(`sending ${amount} to ${to} from ${from}`)
     let filename = `${__dirname}/keyfiles/${from}-keyFile.json`
@@ -67,7 +68,6 @@ const sendTransaction = async (from, to, amount, sweeping=false) => {
     const fee = "10000"
     const rawTxResponse = await txSender.send(account.addressHex, to, amount).submit(chainId,fee,"")
     console.log(rawTxResponse)
-
 }
 
 const setSweeper = (path) => {
@@ -111,8 +111,10 @@ const showHelp = () => {
     console.log("\nOptions:\r")
     console.log("balance <addr>                               \t checks balane of provided address\r")
     console.log("add-account <addr> <weight> <PATH_TO_KEYFILE>\t add account and weight that should be swept to this address\r")
+    console.log("set-sweeper <PATH_TO_KEYFILE>                \t set sweeper keyfile which is used to distribute\r")
     console.log("list-accounts                                \t list all accounts and their weights\r")
     console.log("parse-accounts                               \t parses accounts.txt and prints out array with weights alternating addresses \r")
     console.log('send <FROM> <TO> <AMOUNT>                    \t sends transaction from FROM to TO. from account must already be added\r')
+    console.log('sweep                                        \t sweeps to all accounts based upon weights. sweeper account must already be added\r')
 }
 module.exports = { sweep: sweep, sendTransaction: sendTransaction, setSweeper: setSweeper, parseAccounts: parseAccounts, showAccounts: showAccounts, checkBalance: checkBalance, showHelp: showHelp, addAccount: addAccount}

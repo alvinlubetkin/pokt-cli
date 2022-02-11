@@ -23,6 +23,15 @@ if(yargs.argv._[0] == 'add-account'){
     return;
 }
 
+if(yargs.argv._[0] == 'set-sweeper'){
+    if(yargs.argv._.length != 2){
+        utils.showHelp();
+        return;
+    }
+    utils.setSweeper(yargs.argv._[1])
+    return;
+}
+
 if(yargs.argv._[0] == 'list-accounts'){
     utils.showAccounts()
     if(yargs.argv._.length > 1){
