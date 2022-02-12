@@ -14,6 +14,8 @@ need to add error handling and param handling
 
 `pokt-cli <COMMAND> <OPTIONS>`
 
+use `pokt-cli` to view help
+
 use `pokt-cli add-account [address] [weight] [optional path tokeyfile]` to add accounts
 
 use `pokt-cli set-sweeper [PATH_TO_KEYFILE]` to set sweeper
