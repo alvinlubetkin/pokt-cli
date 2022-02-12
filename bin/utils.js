@@ -32,7 +32,7 @@ const addAccount = async (args) => {
     showHelp();
     return;
   }
-  const acct = `${addr.toLowerCase()} ${weight} `;
+  const acct = `${addr.toLowerCase()} ${weight} \n`;
   fs.appendFile(ACCOUNTS_PATH, acct, (err) => {
     if (err) {
       return;
@@ -45,7 +45,7 @@ const addAccount = async (args) => {
       (err) => {
         if (err) {
           console.log("check path");
-          getHelp();
+          showHelp();
           return;
         }
       }
@@ -58,10 +58,8 @@ const showAccounts = () => {
     console.log("No accounts have been addded.");
     return showHelp();
   }
-  console.log(
-    "accounts:",
-    fs.readFileSync(`${__dirname}/keyfiles/accounts.txt`, "utf-8")
-  );
+  console.log("accounts:");
+  console.log(fs.readFileSync(`${__dirname}/keyfiles/accounts.txt`, "utf-8"));
 };
 
 const parseAccounts = () => {
@@ -114,20 +112,33 @@ const sweep = async () => {
   );
   const accounts = parseAccounts();
 
-  let txSender = await pocket.withImportedAccount(sweeper.addressHex, pass);
-  const bal = (await checkBalance(sweeper.addressHex)) - 3;
+  console.log("starting sweep from:", sweeper.addressHex);
 
+  const bal = (await checkBalance(sweeper.addressHex)).balance - BigInt(3e6);
+  if (parseFloat(bal) <= 0) {
+    console.log(
+      "insufficient funds for sweep. Current sweeper balance: ",
+      parseFloat(bal) / 1e6
+    );
+    return;
+  }
+
+  let txSender = await pocket.withImportedAccount(sweeper.addressHex, pass);
   for (let i = 0; i < accounts.length - 1; i = i + 2) {
     const chainId = "mainnet";
     const fee = "10000";
-    console.log("sweeping ", accounts[i + 1] * bal, "to:", accounts[i]);
+    const amtToSend = (
+      parseFloat(accounts[i + 1]) * parseFloat(bal)
+    ).toString();
+    console.log("sweeping ", parseFloat(amtToSend) / 1e6, "to:", accounts[i]);
+
     const rawTxResponse = await txSender
-      .send(sweeper.addressHex, accounts[i], (accounts[i + 1] * bal).toString())
+      .send(sweeper.addressHex, accounts[i], amtToSend)
       .submit(chainId, fee, CoinDenom.Upokt, "test memo");
     console.log("tx hash:", rawTxResponse.hash);
   }
   console.log(
-    "be patient as pokt network blocks can take up to 30 min to confirm..."
+    "be patient as pokt network blocks and txs can take up to 30 min to confirm..."
   );
 };
 
@@ -135,7 +146,7 @@ const setSweeper = (path) => {
   fs.copyFile(path, `${__dirname}/keyfiles/sweeper-keyFile.json`, (err) => {
     if (err) {
       console.log("check path");
-      getHelp();
+      showHelp();
       return;
     }
   });
