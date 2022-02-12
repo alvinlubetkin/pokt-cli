@@ -71,9 +71,7 @@ const parseAccounts = () => {
 
 //non functioning
 const sendTransaction = async (from, to, amount, sweeping = false) => {
-  console.log(`sending ${amount} to ${to} from ${from}`);
   let filename = `${__dirname}/keyfiles/${from}-keyFile.json`;
-  if (sweeping) filename = `${__dirname}/keyfiles/sweeper-keyFile.json`;
   let acct = require(filename);
 
   const pocket = poktConfig();
@@ -88,17 +86,49 @@ const sendTransaction = async (from, to, amount, sweeping = false) => {
     pass
   );
   console.log("sucesfully unlocked account:", account.addressHex);
+  console.log(`sending ${amount} to ${to} from ${from}`);
   let txSender = await pocket.withImportedAccount(account.addressHex, pass);
-  const chainId = "1";
+  const chainId = "mainnet";
   const fee = "10000";
-  try {
+  const rawTxResponse = await txSender
+    .send(account.addressHex, to, amount.toString())
+    .submit(chainId, fee, CoinDenom.Upokt, "test memo");
+  console.log("tx hash:", rawTxResponse.hash);
+  console.log(
+    "be patient as pokt network blocks can take up to 30 min to confirm..."
+  );
+};
+
+const sweep = async () => {
+  const acct = require(`${__dirname}/keyfiles/sweeper-keyFile.json`);
+  const pass = await getPassword();
+  console.log("\n");
+  const pocket = poktConfig();
+  const sweeper = await pocket.keybase.importPPK(
+    pass,
+    acct.salt,
+    acct.secparam,
+    acct.hint,
+    acct.ciphertext,
+    pass
+  );
+  const accounts = parseAccounts();
+
+  let txSender = await pocket.withImportedAccount(sweeper.addressHex, pass);
+  const bal = (await checkBalance(sweeper.addressHex)) - 3;
+
+  for (let i = 0; i < accounts.length - 1; i = i + 2) {
+    const chainId = "mainnet";
+    const fee = "10000";
+    console.log("sweeping ", accounts[i + 1] * bal, "to:", accounts[i]);
     const rawTxResponse = await txSender
-      .send(account.addressHex, to, amount.toString())
+      .send(sweeper.addressHex, accounts[i], (accounts[i + 1] * bal).toString())
       .submit(chainId, fee, CoinDenom.Upokt, "test memo");
-    console.log(rawTxResponse);
-  } catch (err) {
-    console.log(err);
+    console.log("tx hash:", rawTxResponse.hash);
   }
+  console.log(
+    "be patient as pokt network blocks can take up to 30 min to confirm..."
+  );
 };
 
 const setSweeper = (path) => {
@@ -116,7 +146,6 @@ const poktConfig = () => {
     "https://mainnet.gateway.pokt.network/v1/lb/6205e61d7dc878003c59cdf6";
   const dispatchURL = new URL(POCKET_DISPATCHER);
   const rpcProvider = new HttpRpcProvider(dispatchURL);
-  //   const configuration = new Configuration(5, 1000, 0, 40000);
   const configuration = new Configuration(
     5,
     1000,
@@ -132,31 +161,6 @@ const poktConfig = () => {
   );
   const pocket = new Pocket([dispatchURL], rpcProvider, configuration);
   return pocket;
-};
-const sweep = async () => {
-  const acct = require(`${__dirname}/keyfiles/sweeper-keyFile.json`);
-  const pass = await getPassword();
-  console.log("\n");
-  const pocket = poktConfig();
-  const sweeper = await pocket.keybase.importPPK(
-    pass,
-    acct.salt,
-    acct.secparam,
-    acct.hint,
-    acct.ciphertext,
-    pass
-  );
-  const accounts = parseAccounts();
-
-  const bal = (await checkBalance(sweeper.addressHex)) - 3;
-
-  for (let i = 0; i < account.length - 1; i = i + 2) {
-    sendTransaction(
-      sweeper.addressHex,
-      accounts[i],
-      bal * BigInt(accounts[i + 1]) * BigInt(1e6)
-    );
-  }
 };
 
 const showHelp = () => {
