@@ -51,7 +51,7 @@ if (yargs.argv._[0] == "list-accounts") {
 }
 
 if (yargs.argv._[0] == "parse-accounts") {
-  console.log("\n", utils.parseAccounts());
+  console.log(utils.parseAccounts());
   if (yargs.argv._.length > 1) {
     utils.showHelp();
     return;
@@ -73,7 +73,11 @@ if (yargs.argv._[0] == "sweep") {
     utils.showHelp();
     return;
   }
-
   utils.sweep();
+  return;
+}
+
+if (yargs.argv._[0] == "help") {
+  utils.showHelp();
   return;
 }

@@ -179,25 +179,25 @@ const showHelp = () => {
   console.log(usage);
   console.log("\nOptions:\r");
   console.log(
-    "balance <addr>                               \t checks balane of provided address\r"
+    "balance <addr>                                \t checks balane of provided address\r"
   );
   console.log(
-    "add-account <addr> <weight> <PATH_TO_KEYFILE>\t add account and weight that should be swept to this address\r"
+    "add-account <addr> <weight> <PATH_TO_KEYFILE?>\t add account and weight that should be swept to this address\r"
   );
   console.log(
-    "set-sweeper <PATH_TO_KEYFILE>                \t set sweeper keyfile which is used to distribute\r"
+    "set-sweeper <PATH_TO_KEYFILE>                 \t set sweeper keyfile which is used to distribute\r"
   );
   console.log(
-    "list-accounts                                \t list all accounts and their weights\r"
+    "list-accounts                                 \t list all accounts and their weights\r"
   );
   console.log(
-    "parse-accounts                               \t parses accounts.txt and prints out array with weights alternating addresses \r"
+    "parse-accounts                                \t parses accounts.txt and prints out array with weights alternating addresses \r"
   );
   console.log(
-    "send <FROM> <TO> <AMOUNT>                    \t sends transaction from FROM to TO. from account must already be added\r"
+    "send <FROM> <TO> <AMOUNT>                     \t sends transaction from FROM to TO. from account must already be added\r"
   );
   console.log(
-    "sweep                                        \t sweeps to all accounts based upon weights. sweeper account must already be added\r"
+    "sweep                                         \t sweeps to all accounts based upon weights. sweeper account must already be added\r"
   );
 };
 module.exports = {

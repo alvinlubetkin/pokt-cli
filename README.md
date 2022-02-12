@@ -8,7 +8,15 @@ create keyfiles folder `mkdir pokt-cli/bin/keyfiles`
 
 run `yarn install` to install dependencies and cli
 
-all commands should work properly except for `send` and `sweep`.
-sendTransaction function is getting invalid signature verification?
-
 need to add error handling and param handling
+
+## Usage
+
+`pokt-cli <COMMAND> <OPTIONS>`
+
+use `pokt-cli add-account [address] [weight] [optional path tokeyfile]` to add accounts
+
+use `pokt-cli set-sweeper [PATH_TO_KEYFILE]` to set sweeper
+
+use `pokt-cli send [from address] [to address] [amount]` to send transaction. account FROM must already be added with keyfile
+use `pokt-cli sweep` to send transactions from sweeper to each listed account. sweeper must already be added with keyfile
