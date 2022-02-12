@@ -32,7 +32,7 @@ const addAccount = async (args) => {
     showHelp();
     return;
   }
-  const acct = `${addr.toLowerCase()} ${weight} \n`;
+  const acct = `${addr.toLowerCase()} ${weight} `;
   fs.appendFile(ACCOUNTS_PATH, acct, (err) => {
     if (err) {
       return;
