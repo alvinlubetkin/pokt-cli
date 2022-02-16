@@ -114,7 +114,7 @@ const sweep = async () => {
 
   console.log("starting sweep from:", sweeper.addressHex);
 
-  const bal = (await checkBalance(sweeper.addressHex)).balance - BigInt(3e6);
+  const bal = (await checkBalance(sweeper.addressHex)).balance - BigInt(15e5);
   if (parseFloat(bal) <= 0) {
     console.log(
       "insufficient funds for sweep. Current sweeper balance: ",
@@ -127,14 +127,14 @@ const sweep = async () => {
   for (let i = 0; i < accounts.length - 1; i = i + 2) {
     const chainId = "mainnet";
     const fee = "10000";
-    const amtToSend = (
+    const amtToSend = parseInt(
       parseFloat(accounts[i + 1]) * parseFloat(bal)
     ).toString();
     console.log("sweeping ", parseFloat(amtToSend) / 1e6, "to:", accounts[i]);
 
     const rawTxResponse = await txSender
       .send(sweeper.addressHex, accounts[i], amtToSend)
-      .submit(chainId, fee, CoinDenom.Upokt, "test memo");
+      .submit(chainId, fee, CoinDenom.Upokt, "earnings from node sweeper");
     console.log("tx hash:", rawTxResponse.hash);
   }
   console.log(
