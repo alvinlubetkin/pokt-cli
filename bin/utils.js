@@ -2,6 +2,7 @@ const fs = require("fs");
 const pocketJS = require("@pokt-network/pocket-js");
 const { getPassword } = require("./pswnode");
 const { CoinDenom } = require("@pokt-network/pocket-js");
+const path = require("path");
 const { Pocket, Configuration, HttpRpcProvider, PocketAAT } = pocketJS;
 
 const ACCOUNTS_PATH = `${__dirname}/keyfiles/accounts.txt`;
@@ -24,7 +25,7 @@ const checkBalance = async (addr) => {
   }
 };
 
-const addAccount = async (args) => {
+const addAccount = (args) => {
   const addr = args[1];
   const weight = args[2];
   if (!(parseFloat(weight) < 1)) {
@@ -32,9 +33,12 @@ const addAccount = async (args) => {
     showHelp();
     return;
   }
+
+  if(!fs.existsSync(`${__dirname}/keyfiles`)) fs.mkdirSync(`${__dirname}/keyfiles`)
   const acct = `${addr.toLowerCase()} ${weight} `;
-  fs.appendFile(ACCOUNTS_PATH, acct, (err) => {
+  fs.appendFileSync(ACCOUNTS_PATH, acct, (err) => {
     if (err) {
+      console.log('error adding account')
       return;
     }
   });
